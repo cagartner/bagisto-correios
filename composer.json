@@ -1,0 +1,28 @@
+{
+    "name": "cagartner/bagisto-correios",
+    "description": "Shipping Method for Correios",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Carlos Gartner",
+            "email": "contato@carlosgartner.com.br"
+        }
+    ],
+    "require": {
+        "cagartner/phpquery": "0.9.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cagartner\\Correios\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Cagartner\\Correios\\Providers\\CorreiosServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "minimum-stability": "dev"
+}
