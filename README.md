@@ -6,7 +6,7 @@ Módulo desenvolvido para adicionar o método de entrega dos Correios na ferrame
 
 ## Instalação
 
-@todo
+Run composer require cagartner/bagisto-correios in your bagisto project
 
 ## Configurações
 
