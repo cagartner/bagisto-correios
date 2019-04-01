@@ -4,6 +4,10 @@ Módulo desenvolvido para adicionar o método de entrega dos Correios na ferrame
 
 ![Exemplo](https://i.screenshot.net/x9em5he)
 
+Para maiores informações acesse a página da extenção oficial [clicando aqui](https://bagisto.com/en/extensions/laravel-ecommerce-correios-shipping/)
+
+For futher informations [click here](https://bagisto.com/en/extensions/laravel-ecommerce-correios-shipping/)
+
 ## Instalação
 
 Run composer require cagartner/bagisto-correios in your bagisto project
