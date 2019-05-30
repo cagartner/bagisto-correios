@@ -10,7 +10,7 @@ use PhpQuery\PhpQuery as phpQuery;
 
 class Consult
 {
-    const FRETE_URL = 'http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx?WSDL';
+    const FRETE_URL = 'http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx/CalcPrecoPrazo';
     const CEP_URL = 'http://www.buscacep.correios.com.br/sistemas/buscacep/resultadoBuscaCepEndereco.cfm';
     const RASTREIO_URL = 'https://www2.correios.com.br/sistemas/rastreamento/resultado_semcontent.cfm';
 
@@ -75,6 +75,7 @@ class Consult
     {
         $endpoint = self::FRETE_URL;
         $tipos = self::getTipoInline($data['tipo']);
+        $return = array();
 
         $formatos = array(
             'caixa' => 1,
@@ -85,17 +86,9 @@ class Consult
         $data['tipo'] = $tipos;
         $data['formato'] = $formatos[$data['formato']];
 
-        $data['cep_destino'] = preg_replace("/[^0-9]/", '', $data['cep_destino']);
-        $data['cep_origem'] = preg_replace("/[^0-9]/", '', $data['cep_origem']);
+        $data['cep_destino'] = self::cleanPostcode($data['cep_destino']);
+        $data['cep_origem'] = self::cleanPostcode($data['cep_origem']);
 
-        $options = array_merge(array(
-            'trace' => true,
-            'exceptions' => true,
-            'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
-            'connection_timeout' => 1000
-        ), $options);
-
-        $soap = new \SoapClient($endpoint, $options);
         $params = array(
             'nCdEmpresa' => (isset($data['empresa']) ? $data['empresa'] : ''),
             'sDsSenha' => (isset($data['senha']) ? $data['senha'] : ''),
@@ -114,26 +107,38 @@ class Consult
             'sDtCalculo' => date('d/m/Y'),
         );
 
-        $CalcPrecoPrazoData = $soap->CalcPrecoPrazoData($params);
-        $resultado = $CalcPrecoPrazoData->CalcPrecoPrazoDataResult->Servicos->cServico;
-        if (!is_array($resultado))
-            $resultado = array($resultado);
-        $data = array();
-        foreach ($resultado as $consulta) {
-            $consulta = (array)$consulta;
-            $data[] = array(
-                'codigo' => $consulta['Codigo'],
-                'valor' => (float)str_replace(',', '.', $consulta['Valor']),
-                'prazo' => (int)str_replace(',', '.', $consulta['PrazoEntrega']),
-                'mao_propria' => (float)str_replace(',', '.', $consulta['ValorMaoPropria']),
-                'aviso_recebimento' => (float)str_replace(',', '.', $consulta['ValorAvisoRecebimento']),
-                'valor_declarado' => (float)str_replace(',', '.', $consulta['ValorValorDeclarado']),
-                'entrega_domiciliar' => ($consulta['EntregaDomiciliar'] === 'S' ? true : false),
-                'entrega_sabado' => ($consulta['EntregaSabado'] === 'S' ? true : false),
-                'erro' => array('codigo' => (real)$consulta['Erro'], 'mensagem' => $consulta['MsgErro']),
-            );
+        $curl = new Curl();
+        if ($result = $curl->simple($endpoint, $params)) {
+            $result = simplexml_load_string($result);
+            $rates = array();
+            $collect = (array) $result->Servicos;
+
+            if (is_object($collect['cServico'])) {
+                $rates[] = $collect['cServico'];
+            } else {
+                $rates = $collect['cServico'];
+            }
+
+            foreach ($rates as $rate) {
+                $return[] = array(
+                    'codigo' => (int) $rate->Codigo,
+                    'valor' => self::cleanMoney($rate->Valor),
+                    'prazo' => self::cleanInteger($rate->PrazoEntrega),
+                    'mao_propria' => self::cleanMoney($rate->ValorMaoPropria),
+                    'aviso_recebimento' => self::cleanMoney($rate->ValorAvisoRecebimento),
+                    'valor_declarado' => self::cleanMoney($rate->ValorValorDeclarado),
+                    'entrega_domiciliar' => $rate->EntregaDomiciliar === 'S',
+                    'entrega_sabado' => $rate->EntregaSabado === 'S',
+                    'erro' => array('codigo' => (real) $rate->Erro, 'mensagem' => (real) $rate->MsgErro),
+                );
+            }
+
+            if (self::getTipoIsArray($tipos) === false) {
+                return isset($return[0]) ? $return[0] : [];
+            }
         }
-        return collect($data);
+
+        return collect($return);
     }
 
     /**
@@ -213,5 +218,31 @@ class Consult
             return false;
 
         return collect($tracking);
+    }
+    /**
+     * @param $postcode
+     * @return string|string[]|null
+     */
+    protected static function cleanPostcode($postcode)
+    {
+        return preg_replace("/[^0-9]/", '', $postcode);
+    }
+
+    /**
+     * @param $value
+     * @return float
+     */
+    protected function cleanMoney($value)
+    {
+        return (float) str_replace(',', '.', $value);
+    }
+
+    /**
+     * @param $value
+     * @return int
+     */
+    protected function cleanInteger($value)
+    {
+        return (int) str_replace(',', '.', $value);
     }
 }
