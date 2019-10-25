@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "cagartner/phpquery": "0.9.10"
+        "cagartner/phpquery": "0.9.11"
     },
     "autoload": {
         "psr-4": {
