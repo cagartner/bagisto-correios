@@ -15,13 +15,13 @@ class Consult
     const RASTREIO_URL = 'https://www2.correios.com.br/sistemas/rastreamento/resultado_semcontent.cfm';
 
     private static $methods = array(
-        'sedex' => '04014',
+        'sedex' => '4014',
         'sedex_a_cobrar' => '40045',
         'sedex_10' => '40215',
         'sedex_hoje' => '40290',
-        'pac' => '04510',
-        'pac_contrato' => '04669',
-        'sedex_contrato' => '04162',
+        'pac' => '4510',
+        'pac_contrato' => '4669',
+        'sedex_contrato' => '4162',
         'esedex' => '81019',
     );
 
@@ -111,6 +111,7 @@ class Consult
         if ($result = $curl->simple($endpoint, $params)) {
             $result = simplexml_load_string($result);
             $rates = array();
+
             $collect = (array) $result->Servicos;
 
             if (is_object($collect['cServico'])) {
@@ -120,6 +121,11 @@ class Consult
             }
 
             foreach ($rates as $rate) {
+
+                if ((int) $rate->Erro) {
+                    throw new \Exception($rate->MsgErro);
+                }
+
                 $return[] = array(
                     'codigo' => (int) $rate->Codigo,
                     'valor' => self::cleanMoney($rate->Valor),

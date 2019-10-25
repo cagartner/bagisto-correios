@@ -50,41 +50,49 @@ class Correios extends AbstractShipping
         /** @var \Webkul\Checkout\Models\Cart $cart */
         $cart = Cart::getCart();
         $total_weight = $cart->items->sum('total_weight');
-
-        $data = [
-            'tipo' => $this->getConfigData('methods'),
-            'formato' => $this->getConfigData('package_type'), // opções: `caixa`, `rolo`, `envelope`
-            'cep_destino' => $cart->shipping_address->postcode,
-            'cep_origem' => core()->getConfigData('sales.shipping.origin.zipcode'),
-            'peso' => $total_weight, // Peso em kilos
-            'comprimento' => $this->getConfigData('package_length'), // Em centímetros
-            'altura' => $this->getConfigData('package_height'), // Em centímetros
-            'largura' => $this->getConfigData('package_width'), // Em centímetros
-            'diametro' => $this->getConfigData('roll_diameter'), // Em centímetros, no caso de rolo
-        ];
-
-        if ($this->getConfigData('cod_company') && $this->getConfigData('password')) {
-            $data['empresa'] = $this->getConfigData('cod_company');
-            $data['senha'] = $this->getConfigData('password');
-        }
-
-        $consult = new Consult();
-        /** @var Collection $result */
-        $result = $consult->carriers($data);
         $rates = [];
         $tax_handling = (int)core()->convertPrice($this->getConfigData('tax_handling')) ?: 0;
 
-        foreach ($result as $item) {
-            $object = new CartShippingRate;
-            $object->carrier = 'correios';
-            $object->carrier_title = $this->getConfigData('title');
-            $object->method = 'cagartner_correios_' . Consult::getTipoIndex($item['codigo']);
-            $object->method_title = $this->getMethodTitle($item['codigo']);
-            $object->method_description = $this->getMethodDescription($item['prazo']);
-            $object->price = core()->convertPrice($item['valor']) + $tax_handling;
-            $object->base_price = core()->convertPrice($item['valor']) + $tax_handling;
-            array_push($rates, $object);
+        $methods = explode(',', $this->getConfigData('methods'));
+
+        if (!$methods) {
+            throw new \Exception('Select one shipping method of correios');
         }
+
+        foreach ($methods as $method) {
+            $data = [
+                'tipo' => $method,
+                'formato' => $this->getConfigData('package_type'), // opções: `caixa`, `rolo`, `envelope`
+                'cep_destino' => $cart->shipping_address->postcode,
+                'cep_origem' => core()->getConfigData('sales.shipping.origin.zipcode'),
+                'peso' => $total_weight, // Peso em kilos
+                'comprimento' => $this->getConfigData('package_length'), // Em centímetros
+                'altura' => $this->getConfigData('package_height'), // Em centímetros
+                'largura' => $this->getConfigData('package_width'), // Em centímetros
+                'diametro' => $this->getConfigData('roll_diameter'), // Em centímetros, no caso de rolo
+            ];
+
+            if ($this->getConfigData('cod_company') && $this->getConfigData('password')) {
+                $data['empresa'] = $this->getConfigData('cod_company');
+                $data['senha'] = $this->getConfigData('password');
+            }
+
+            $consult = new Consult();
+            /** @var Collection $result */
+            $result = $consult->carriers($data);
+
+            $shippingRate = new CartShippingRate;
+            $shippingRate->carrier = 'correios';
+            $shippingRate->carrier_title = $this->getConfigData('title');
+            $shippingRate->method = 'cagartner_correios_' . Consult::getTipoIndex($result['codigo']);
+            $shippingRate->method_title = $this->getMethodTitle($result['codigo']);
+            $shippingRate->method_description = $this->getMethodDescription($result['prazo']);
+            $shippingRate->price = core()->convertPrice($result['valor']) + $tax_handling;
+            $shippingRate->base_price = core()->convertPrice($result['valor']) + $tax_handling;
+
+            array_push($rates, $shippingRate);
+        }
+
         return $rates;
     }
 
