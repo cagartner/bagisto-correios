@@ -36,4 +36,7 @@ Configurações disponíveis:
 
 Se gostou do trabalho e quiser me pagar uma cerveja, pode me fazer uma doação pelo PicPay: @cagartner
 
- 
+ ## Conheça outros Packages para Bagisto
+
+* [Bagisto - Pagseguro](https://github.com/cagartner/bagisto-pagseguro)
+* [Bagisto - PicPay](https://github.com/cagartner/bagisto-picpay)
