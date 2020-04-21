@@ -40,6 +40,7 @@ Se gostou do trabalho e quiser me pagar uma cerveja, pode me fazer uma doação 
 
 * [Bagisto - Pagseguro](https://github.com/cagartner/bagisto-pagseguro)
 * [Bagisto - PicPay](https://github.com/cagartner/bagisto-picpay)
+* [Bagisto - Campos Brasileiros](https://github.com/cagartner/bagisto-brazilcustomer)
 
 ## Conheça a comunidade Brasileira de Bagisto
 - [Portal Oficial](https://bagisto.com.br)
