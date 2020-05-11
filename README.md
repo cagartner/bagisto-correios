@@ -18,8 +18,8 @@ Para configurar seu módulo acesse: Admin > Configurar > Sales > Shipping Method
 
 Configurações disponíveis:
 
-* **Title**: Nome do método de entrega.
-* **Description**: Opcional
+* **Título**: Nome do método de entrega.
+* **Descrição**: Opcional
 * **Taxa de Manuseio**: Precisa ser um número, usar . para decimais, ex: 1.50 = R$1,50
 * **Métodos**: métodos de entrega que podem ser pesquisados na loja, segurar ctrl e clicar para selecionar mais que 1.
 * **Dias Extras ao Prazo de Entrega**: Dias que serão adicionados ao prazo de entrega retornado dos Correios.
@@ -31,6 +31,9 @@ Configurações disponíveis:
 * **Código Da Empresa**: Código da sua empresa junto ao correios, campo opcional.
 * **Senha**: Senha da sua empresa junto ao correios, campo opcional.
 * **Status**: Ativa ou desativa o método de entrega
+* **Método Padrão**: Método de entrega que será mostrado caso o serviço dos Correios estiver fora do Ar
+* **Preço Padrão**: Preço padrão da entrega que será exibido caso os Correios estiverem fora do ar
+* **Prazo padrão de entrega (em dias)**: Prazo de entrega padrão que será exibido caso os Correios estiverem fora do AR
 
 ## Me pague uma cerveja:
 

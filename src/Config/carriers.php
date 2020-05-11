@@ -15,6 +15,8 @@ return [
         'package_length' => 16,
         'package_height' => 11,
         'package_width' => 11,
-        'roll_diameter' => 0
+        'default_method' => 'pac',
+        'default_price' => 20,
+        'default_estimate' => 10,
     ],
 ];

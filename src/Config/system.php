@@ -14,7 +14,7 @@ return [
                 'locale_based' => true
             ], [
                 'name' => 'description',
-                'title' => 'Description',
+                'title' => 'Descrição',
                 'type' => 'textarea',
                 'channel_based' => false,
                 'locale_based' => true
@@ -27,7 +27,7 @@ return [
                 'validation' => 'required',
             ], [
                 'name' => 'methods',
-                'title' => 'Methods',
+                'title' => 'Métodos',
                 'type' => 'multiselect',
                 'options' => [
                     [
@@ -159,7 +159,36 @@ return [
                     ]
                 ],
                 'validation' => 'required'
-            ]
+            ], [
+                'name' => 'default_method',
+                'title' => 'Método Padrão',
+                'type' => 'select',
+                'options' => [
+                    [
+                        'title' => 'Sedex',
+                        'value' => 'sedex'
+                    ], [
+                        'title' => 'PAC',
+                        'value' => 'pac'
+                    ]
+                ],
+                'info' => 'Selecione um método para mostrar esse método caso o serviço dos Correios estiver fora do ar.',
+                'validation' => 'required'
+            ], [
+                'name' => 'default_price',
+                'title' => 'Preço Padrão',
+                'type' => 'text',
+                'channel_based' => false,
+                'locale_based' => true,
+                'validation' => 'required',
+            ], [
+                'name' => 'default_estimate',
+                'title' => 'Prazo padrão de entrega (em dias)',
+                'type' => 'text',
+                'channel_based' => false,
+                'locale_based' => true,
+                'validation' => 'required',
+            ],
         ]
     ]
 ];

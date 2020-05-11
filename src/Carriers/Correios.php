@@ -51,12 +51,16 @@ class Correios extends AbstractShipping
         $cart = Cart::getCart();
         $total_weight = $cart->items->sum('total_weight');
         $rates = [];
-        $tax_handling = (int)core()->convertPrice($this->getConfigData('tax_handling')) ?: 0;
+        $tax_handling = (int) core()->convertPrice($this->getConfigData('tax_handling')) ?: 0;
 
         $methods = explode(',', $this->getConfigData('methods'));
 
         if (!$methods) {
             throw new \Exception('Select one shipping method of correios');
+        }
+
+        if (!$cart->shipping_address) {
+            throw new \Exception('Seu carrinho está com problemas, atualize sua página e tente novamente.');
         }
 
         foreach ($methods as $method) {
@@ -78,17 +82,37 @@ class Correios extends AbstractShipping
             }
 
             $consult = new Consult();
-            /** @var Collection $result */
-            $result = $consult->carriers($data);
 
+            /** @var Collection $result */
+            try {
+                $result = $consult->carriers($data);
+
+                $shippingRate = new CartShippingRate;
+                $shippingRate->carrier = 'correios';
+                $shippingRate->carrier_title = $this->getConfigData('title');
+                $shippingRate->method = 'cagartner_correios_' . Consult::getTipoIndex($result['codigo']);
+                $shippingRate->method_title = $this->getMethodTitle($result['codigo']);
+                $shippingRate->method_description = $this->getMethodDescription($result['prazo']);
+                $shippingRate->price = core()->convertPrice($result['valor']) + $tax_handling;
+                $shippingRate->base_price = core()->convertPrice($result['valor']) + $tax_handling;
+
+                array_push($rates, $shippingRate);
+
+            } catch (\Exception $exception) {
+
+            }
+        }
+
+        // Adiciona o método de correios padrão se não tiver nenhum retorno da API dos correios
+        if (!count($rates)) {
             $shippingRate = new CartShippingRate;
             $shippingRate->carrier = 'correios';
             $shippingRate->carrier_title = $this->getConfigData('title');
-            $shippingRate->method = 'cagartner_correios_' . Consult::getTipoIndex($result['codigo']);
-            $shippingRate->method_title = $this->getMethodTitle($result['codigo']);
-            $shippingRate->method_description = $this->getMethodDescription($result['prazo']);
-            $shippingRate->price = core()->convertPrice($result['valor']) + $tax_handling;
-            $shippingRate->base_price = core()->convertPrice($result['valor']) + $tax_handling;
+            $shippingRate->method = 'cagartner_correios_' . $this->getConfigData('default_method');
+            $shippingRate->method_title = self::METHODS_TITLE[$this->getConfigData('default_method')];
+            $shippingRate->method_description = $this->getMethodDescription($this->getConfigData('default_estimate'));
+            $shippingRate->price = core()->convertPrice($this->getConfigData('default_price')) + $tax_handling;
+            $shippingRate->base_price = core()->convertPrice($this->getConfigData('default_price')) + $tax_handling;
 
             array_push($rates, $shippingRate);
         }
