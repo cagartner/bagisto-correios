@@ -99,7 +99,7 @@ class Correios extends AbstractShipping
                 array_push($rates, $shippingRate);
 
             } catch (\Exception $exception) {
-
+                dd($exception);
             }
         }
 

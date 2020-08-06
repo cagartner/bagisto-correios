@@ -7,7 +7,7 @@ return [
         'fields' => [
             [
                 'name' => 'title',
-                'title' => 'Title',
+                'title' => 'Título',
                 'type' => 'text',
                 'validation' => 'required',
                 'channel_based' => false,
@@ -148,16 +148,7 @@ return [
             [
                 'name' => 'active',
                 'title' => 'Status',
-                'type' => 'select',
-                'options' => [
-                    [
-                        'title' => 'Active',
-                        'value' => true
-                    ], [
-                        'title' => 'Inactive',
-                        'value' => false
-                    ]
-                ],
+                'type' => 'boolean',
                 'validation' => 'required'
             ], [
                 'name' => 'default_method',

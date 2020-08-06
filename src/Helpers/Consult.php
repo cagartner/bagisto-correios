@@ -135,7 +135,7 @@ class Consult
                     'valor_declarado' => self::cleanMoney($rate->ValorValorDeclarado),
                     'entrega_domiciliar' => $rate->EntregaDomiciliar === 'S',
                     'entrega_sabado' => $rate->EntregaSabado === 'S',
-                    'erro' => array('codigo' => (real) $rate->Erro, 'mensagem' => (real) $rate->MsgErro),
+                    'erro' => array('codigo' => (integer) $rate->Erro, 'mensagem' => (string) $rate->MsgErro),
                 );
             }
 
@@ -176,7 +176,8 @@ class Consult
                         foreach ($children as $child) {
                             $innerHTML .= $child->ownerDocument->saveXML($child);
                         }
-                        $item[] = trim(preg_replace("/&#?[a-z0-9]+;/i", "", $innerHTML));
+                        $text = preg_replace("/&#?[a-z0-9]+;/i", "", $innerHTML);
+                        $itens[] = preg_replace(['(\s+)u', '(^\s|\s$)u'], [' ', ''], $text);
                     }
                     $data = [];
                     $data['address'] = trim($item[0], " \t\n\r\0\x0B\xc2\xa0");
